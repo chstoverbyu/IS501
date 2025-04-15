@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wordle Clone</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1c1c1c, #383838);
+      color: #eee;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tile {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    .correct {
+      background: #538d4e;
+      border-color: #538d4e;
+    }
+    .present {
+      background: #b59f3b;
+      border-color: #b59f3b;
+    }
+    .absent {
+      background: #3a3a3c;
+      border-color: #3a3a3c;
+    }
+    input {
+      padding: 10px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      margin-right: 10px;
+      width: 120px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      background: #ff9800;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e68900;
+    }
+    #message {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+    @keyframes confetti {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(600px); opacity: 0; }
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: red;
+      top: 0;
+      left: 50%;
+      animation: confetti 3s ease-out forwards;
+    }
+  </style>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>MLB.NEWS</title>
+  <link rel="icon" type="image/x-icon" href="../images/img/post-bg.jpg" />
+  <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css" />
+  <link href="../styles/styles.css" rel="stylesheet" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+    <div class="container px-4 px-lg-5">
+      <a class="navbar-brand" href="../index.html">Articles About Me</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ms-auto py-4 py-lg-0">
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="../index.html">Articles About Me</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="#">Articles</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="tableau.html">Sales Report</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="games.html">Wordle Clone</a></li>
+          <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="grad.html">Accounting</a></li> 
+        </ul>
+      </div>
+    </div>
+  </nav>
+<br>
+<br>
+  <h1>Wordle Clone</h1>
+
+  <div id="game-board"></div>
+  <div>
+    <input type="text" id="guess-input" maxlength="5" placeholder="Guess...">
+    <button id="guess-button">Guess</button>
+  </div>
+  <div id="message"></div>
+
+  <script>
+    const wordList = ['apple', 'brave', 'chess', 'delta', 'flame', 'grape', 'hover', 'juice', 'lucky', 'maple'];
+    const targetWord = wordList[Math.floor(Math.random() * wordList.length)];
+    const maxGuesses = 6;
+    let currentRow = 0;
+
+    const board = document.getElementById('game-board');
+    const message = document.getElementById('message');
+    const input = document.getElementById('guess-input');
+    const button = document.getElementById('guess-button');
+
+    function createBoard() {
+      for (let i = 0; i < maxGuesses * 5; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        board.appendChild(tile);
+      }
+    }
+
+    function checkGuess() {
+      const guess = input.value.trim().toLowerCase();
+      if (guess.length !== 5) {
+        message.textContent = 'Word must be 5 letters!';
+        return;
+      }
+
+      for (let i = 0; i < 5; i++) {
+        const tile = board.children[currentRow * 5 + i];
+        tile.textContent = guess[i].toUpperCase();
+        tile.classList.remove('correct', 'present', 'absent');
+
+        if (guess[i] === targetWord[i]) {
+          tile.classList.add('correct');
+        } else if (targetWord.includes(guess[i])) {
+          tile.classList.add('present');
+        } else {
+          tile.classList.add('absent');
+        }
+      }
+
+      if (guess === targetWord) {
+        message.textContent = `🎉 You Win! The word was ${targetWord.toUpperCase()}`;
+        launchConfetti();
+      } else if (++currentRow >= maxGuesses) {
+        message.textContent = `😢 Game Over! The word was ${targetWord.toUpperCase()}`;
+      } else {
+        message.textContent = '';
+      }
+      input.value = '';
+    }
+
+    function launchConfetti() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDelay = `${Math.random()}s`;
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    button.addEventListener('click', checkGuess);
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkGuess();
+    });
+
+    createBoard();
+  </script>
+
+</body>
+</html>
